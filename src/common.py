@@ -94,8 +94,13 @@ class CharacterParser:
     def __enforce_terminator(self, character_array: np.ndarray[np.uint16], last_char_index: int) -> np.ndarray[np.uint16]:
         """Enforce terminator if specified."""
         if self.enforce_terminator:
+            last_char_index = min(last_char_index, len(character_array) - 1)
             if character_array[last_char_index] != 0xFFFF:
-                character_array[last_char_index + 1] = 0xFFFF
+                if last_char_index == len(character_array) - 1:
+                    logging.warning("Overwriting last character with terminator")
+                    character_array[last_char_index] = 0xFFFF
+                else:
+                    character_array[last_char_index + 1] = 0xFFFF
         return character_array
 
     def __load_characters(self) -> None:
