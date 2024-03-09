@@ -111,3 +111,26 @@ class CharacterParser:
                     character_map[key] = int(value, 16)
             self.character_map = character_map
 
+
+class Memory:
+    def get_value(memory: np.ndarray[np.uint8], index: int = 0, size: int = 1) -> np.ndarray[np.uint8]:
+        """Read the data from the memory array."""
+        return memory[index:index + size], index + size
+    
+    def get_value_as_int(memory: np.ndarray[np.uint8], index: int = 0, size: int = 1) -> int:
+        """Read the data from the memory array and convert it to an integer."""
+        return int.from_bytes(memory[index:index + size], byteorder="little"), index + size
+
+    def set_value(memory: np.ndarray[np.uint8], index: int = 0, value: int = 0) -> int:
+        """Set the data value in the memory array."""
+        if isinstance(value, np.ndarray):
+            byte_array = value.view(dtype=np.uint8)
+            length = len(byte_array)
+        else:
+            dtype = value.dtype
+            length = np.dtype(dtype).itemsize
+            byte_array = np.array([value], dtype=dtype).view(dtype=np.uint8)
+        if index + length > len(memory):
+            raise ValueError(f"Index {index} + length {length} is out of bounds for memory of length {len(memory)}")
+        memory[index:index+length] = byte_array
+        return index + length
