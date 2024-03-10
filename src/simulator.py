@@ -150,6 +150,15 @@ class Simulation:
         size = self.hall_of_fame.memory.size
         self.__memory[index:index + size] = self.hall_of_fame.memory
 
+    def get_sucess_rate(self, logs: Dict) -> float:
+        total_successes = 0
+        total_attempts = 0
+        for base, log in logs.items():
+            successes = len([x for x in log if x])
+            total_successes += successes
+            total_attempts += len(log)
+        return total_successes/total_attempts
+
     def plot_simulations(self, logs: Dict) -> None:
         import matplotlib.pyplot as plt
         total_successes = 0
