@@ -4,8 +4,8 @@ from hall_of_fame_record import HallOfFameRecord
 from hall_of_fame import HallOfFame
 
 from simulator import Simulation
-
 import abc
+from typing import Union, Dict, List
 
 class Setup(abc.ABC):
     """
@@ -18,8 +18,31 @@ class Setup(abc.ABC):
         """
         pass
 
+    @abc.abstractmethod
+    def get_offsets(self) -> dict:
+        """
+        Get the execution offsets for the setup
+        """
+        pass
 
-class GyaradosSetup(Setup):
+class BackupSaveItemSetup(Setup):
+    def get_offsets(self, key_items: Union[Dict, int], hm_items: Union[List, None] = None) -> Dict:
+        """
+        Get the execution offsets for the setup
+        """
+        max_offset = 0x1102E8
+        for hm in ["HM07", "HM08", 7, 8]:
+            if hm in hm_items:
+                min_offset = 0x110128 + 2* 2* len(hm_items) # 2 bytes id, 2 bytes quantity
+                return {"min_offset": min_offset, "max_offset": max_offset}
+
+        key_item_count = key_items if isinstance(key_items, int) else len(key_items)
+        min_offset = 0x110060 + 2* 2* key_item_count # could be lowered by ordering the key items in the bag
+        
+        return {"min_offset": min_offset, "max_offset": max_offset}
+
+
+class GyaradosSetup(BackupSaveItemSetup):
     """
     The current best setup, using an RNG'd Gyarados.
     """
@@ -32,10 +55,9 @@ class GyaradosSetup(Setup):
     def run(self) -> None:
         # TM slot in item data of backup save file
         # This is the memory section used in current ASE setups
-        execution_offsets = {
-            "min_offset": 0x110000,
-            "max_offset": 0x1102E8
-        }
+        mandatory_hm_items = ["HM01", "HM6"]
+        all_hms = [i for i in range(1, 9)]
+        execution_offsets = self.get_offsets(0, all_hms)
 
         pokemon = HallOfFamePokemon(species="Gyarados",
                                     level=0x16,
@@ -65,7 +87,7 @@ class GyaradosSetup(Setup):
         simulation.plot_simulations(success_log)
 
 
-class KakunaSetup(Setup):
+class KakunaSetup(BackupSaveItemSetup):
     """
     The current best setup if the user does not want to perform RNG manipulation.
     It requires the user to have a Kakuna, which can be traded from another game.
@@ -79,10 +101,9 @@ class KakunaSetup(Setup):
     def run(self) -> None:
         # TM slot in item data of backup save file
         # This is the memory section used in current ASE setups
-        execution_offsets = {
-            "min_offset": 0x110000,
-            "max_offset": 0x1102E8
-        }
+        mandatory_hm_items = ["HM01", "HM6"]
+        all_hms = [i for i in range(1, 9)]
+        execution_offsets = self.get_offsets(0, all_hms)
 
         pokemon = HallOfFamePokemon(species="Kakuna",
                                     level=0x16,
@@ -91,13 +112,13 @@ class KakunaSetup(Setup):
                                     trainer_id=0xffff,
                                     secret_id=0xffff,
                                     name="h",
-                                    trainer_name="kh", 
+                                    trainer_name="Darugis", 
                                     move1="Bug Bite",
                                     move2=0x0, 
-                                    move3=0x0, 
+                                    move3=0x0,
                                     move4=0x0
                                     )
-    
+
         record_28 = HallOfFameRecord(party=[pokemon], year=2022, month=12, day=23)
         record_29 = HallOfFameRecord(party=[pokemon], year=2022, month=12, day=22)
         record_30 = HallOfFameRecord(party=[pokemon])
