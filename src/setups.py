@@ -113,7 +113,7 @@ class KakunaSetup(BackupSaveItemSetup):
                                     trainer_id=0xffff,
                                     secret_id=0xffff,
                                     name="h",
-                                    trainer_name="Darugis", 
+                                    trainer_name="kh", 
                                     move1="Bug Bite",
                                     move2=0x0, 
                                     move3=0x0,
