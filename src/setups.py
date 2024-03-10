@@ -52,7 +52,7 @@ class GyaradosSetup(BackupSaveItemSetup):
         self.author = "Jorik Devreese (RETIREglitch)"
 
 
-    def run(self) -> None:
+    def run(self, plot: bool = True) -> float:
         # TM slot in item data of backup save file
         # This is the memory section used in current ASE setups
         mandatory_hm_items = ["HM01", "HM6"]
@@ -84,7 +84,8 @@ class GyaradosSetup(BackupSaveItemSetup):
         hall_of_fame = HallOfFame(records=records, record_start=27)
         simulation = Simulation(execution_offsets=execution_offsets, hall_of_fame=hall_of_fame)
         success_log = simulation.simulate_full()
-        simulation.plot_simulations(success_log)
+        simulation.plot_simulations(success_log, plot)
+        return simulation.get_success_rate(success_log)
 
 
 class KakunaSetup(BackupSaveItemSetup):
@@ -92,13 +93,13 @@ class KakunaSetup(BackupSaveItemSetup):
     The current best setup if the user does not want to perform RNG manipulation.
     It requires the user to have a Kakuna, which can be traded from another game.
     """
-    def __init__(self):
+    def __init__(self, plot: bool = False):
         self.name = 'Kakuna setup'
         self.version = '0.0.1'
         self.author = "Jorik Devreese (RETIREglitch)"
 
 
-    def run(self) -> None:
+    def run(self, plot: bool = True) -> float:
         # TM slot in item data of backup save file
         # This is the memory section used in current ASE setups
         mandatory_hm_items = ["HM01", "HM6"]
@@ -131,4 +132,5 @@ class KakunaSetup(BackupSaveItemSetup):
         hall_of_fame = HallOfFame(records=records, record_start=27)
         simulation = Simulation(execution_offsets=execution_offsets, hall_of_fame=hall_of_fame)
         success_log = simulation.simulate_full()
-        simulation.plot_simulations(success_log)
+        simulation.plot_simulations(success_log, plot)
+        return simulation.get_success_rate(success_log)
